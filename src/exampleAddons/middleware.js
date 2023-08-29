@@ -1,14 +1,20 @@
-export const print1 = (storeAPI) => (next) => (action) => {
-  console.log('1')
-  return next(action)
+import { client } from '../api/client';
+
+export const loggerMiddleware = storeAPI => next => action => {
+  const result = next(action);
+  console.log('next state', storeAPI.getState());
+  return result;
 }
 
-export const print2 = (storeAPI) => (next) => (action) => {
-  console.log('2')
-  return next(action)
-}
+export const fetchTodosMiddleware = storeAPI => next => action => {
+  if (action.type === 'todos/fetchTodos') {
+    client.get('fakeApi/todos').then(res => {
+      storeAPI.dispatch({
+        type: 'todos/todosLoaded',
+        payload: res.todos
+      });
+    });
+  }
 
-export const print3 = (storeAPI) => (next) => (action) => {
-  console.log('3')
-  return next(action)
+  return next(action);
 }
